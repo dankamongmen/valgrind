@@ -1002,7 +1002,8 @@ void run_thread_for_a_while ( /*OUT*/HWord* two_words,
 
    /* Invalidate any in-flight LL/SC transactions, in the case that we're
       using the fallback LL/SC implementation.  See bugs 344524 and 369459. */
-#  if defined(VGP_mips32_linux) || defined(VGP_mips64_linux)
+#  if defined(VGP_mips32_linux) || defined(VGP_mips64_linux) \
+      || defined(VGP_nanomips_linux)
    tst->arch.vex.guest_LLaddr = (RegWord)(-1);
 #  elif defined(VGP_arm64_linux)
    tst->arch.vex.guest_LLSC_SIZE = 0;
@@ -1321,10 +1322,6 @@ VgSchedReturnCode VG_(scheduler) ( ThreadId tid )
             VG_(force_vgdb_poll) ();
          else
             VG_(disable_vgdb_poll) ();
-
-         vg_assert (VG_(dyn_vgdb_error) == VG_(clo_vgdb_error));
-         /* As we are initializing, VG_(dyn_vgdb_error) can't have been
-            changed yet. */
 
          VG_(gdbserver_prerun_action) (1);
       } else {
@@ -1795,7 +1792,7 @@ void VG_(nuke_all_threads_except) ( ThreadId me, VgSchedReturnCode src )
 #elif defined (VGA_s390x)
 #  define VG_CLREQ_ARGS       guest_r2
 #  define VG_CLREQ_RET        guest_r3
-#elif defined(VGA_mips32) || defined(VGA_mips64)
+#elif defined(VGA_mips32) || defined(VGA_mips64) || defined(VGA_nanomips)
 #  define VG_CLREQ_ARGS       guest_r12
 #  define VG_CLREQ_RET        guest_r11
 #else
@@ -2113,6 +2110,11 @@ void do_client_request ( ThreadId tid )
 
       case VG_USERREQ__COUNT_ERRORS:  
          SET_CLREQ_RETVAL( tid, VG_(get_n_errs_found)() );
+         break;
+
+      case VG_USERREQ__CLO_CHANGE:
+         VG_(process_dynamic_option) (cloD, (HChar *)arg[1]);
+         SET_CLREQ_RETVAL( tid, 0 );     /* return value is meaningless */
          break;
 
       case VG_USERREQ__LOAD_PDB_DEBUGINFO:

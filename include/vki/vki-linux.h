@@ -426,6 +426,14 @@ typedef union vki_sigval {
 #define __VKI_ARCH_SI_BAND_T long
 #endif
 
+#ifndef __VKI_ARCH_SI_CLOCK_T
+#define __VKI_ARCH_SI_CLOCK_T vki_clock_t
+#endif
+
+#ifndef __VKI_ARCH_SI_ATTRIBUTES
+#define __VKI_ARCH_SI_ATTRIBUTES
+#endif
+
 // [[Nb: this type changed between 2.4 and 2.6, but not in a way that
 // affects Valgrind.]]
 typedef struct vki_siginfo {
@@ -463,8 +471,8 @@ typedef struct vki_siginfo {
 			vki_pid_t _pid;		/* which child */
 			__VKI_ARCH_SI_UID_T _uid;	/* sender's uid */
 			int _status;		/* exit code */
-			vki_clock_t _utime;
-			vki_clock_t _stime;
+			__VKI_ARCH_SI_CLOCK_T _utime;
+			__VKI_ARCH_SI_CLOCK_T _stime;
 		} _sigchld;
 
 		/* SIGILL, SIGFPE, SIGSEGV, SIGBUS */
@@ -481,7 +489,7 @@ typedef struct vki_siginfo {
 			int _fd;
 		} _sigpoll;
 	} _sifields;
-} vki_siginfo_t;
+} __VKI_ARCH_SI_ATTRIBUTES vki_siginfo_t;
 #endif
 
 #define __VKI_SI_FAULT	0
@@ -1385,6 +1393,8 @@ struct vki_robust_list_head {
 #define VKI_S_IWOTH 00002
 #define VKI_S_IXOTH 00001
 
+#define VKI_STATX_ALL 0x00000FFFU
+
 struct vki_statx_timestamp {
         __vki_s64   tv_sec;
         __vki_u32   tv_nsec;
@@ -1475,6 +1485,8 @@ struct vki_flock64 {
 	__vki_kernel_loff_t	l_len;
 	__vki_kernel_pid_t	l_pid;
 };
+
+#define VKI_AT_EMPTY_PATH       0x1000  /* Allow empty relative pathname */
 
 //----------------------------------------------------------------------
 // From linux-2.6.8.1/include/linux/sysctl.h

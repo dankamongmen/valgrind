@@ -13,6 +13,18 @@ support for X86/macOS 10.13 and AMD64/macOS 10.13.
 
 * ==================== CORE CHANGES ===================
 
+* It is now possible to dynamically change the value of many command
+  line options while your program (or its children) are running under
+  Valgrind.
+  To have the list of dynamically changeable options, run
+     "valgrind --help-dyn-options".
+  You can change the options from the shell by using vgdb to launch
+  the monitor command "v.clo <clo option>...".
+  The same monitor command can be used from a gdb connected
+  to the valgrind gdbserver.
+  Your program can also change the dynamically changeable options using
+  the client request VALGRIND_CLO_CHANGE(option).
+
 * ==================== TOOL CHANGES ====================
 
 * DHAT:
@@ -20,10 +32,18 @@ support for X86/macOS 10.13 and AMD64/macOS 10.13.
 * Cachegrind:
 
 * Callgrind:
+  - The command option --collect-systime has been enhanced to specify
+    the unit used to record the elapsed time spent during system calls.
+    The command option now accepts the values no|yes|msec|usec|nsec,
+    where yes is a synonym of msec.  When giving the value nsec, the
+    system cpu time of system calls is also recorded.
 
 * Massif:
 
 * Memcheck:
+
+  - Several memcheck options are now dynamically changeable.
+    Use  valgrind --help-dyn-options  to list them.
 
 * ==================== OTHER CHANGES ====================
 
@@ -47,6 +67,7 @@ To see details of a given bug, visit
   https://bugs.kde.org/show_bug.cgi?id=XXXXXX
 where XXXXXX is the bug number as listed below.
 
+400593  In Coregrind, use statx for some internal syscalls if [f]stat[64] fail
 406561  mcinfcallWSRU gdbserver_test fails on ppc64
 406824  Unsupported baseline
 407218  Add support for the copy_file_range syscall
@@ -56,8 +77,11 @@ where XXXXXX is the bug number as listed below.
 408091  Missing pkey syscalls
 408414  Add support for missing for preadv2 and pwritev2 syscalls
 404406  s390x: z14 miscellaneous instructions not implemented
+405201  Incorrect size of struct vki_siginfo on 64-bit Linux architectures
 409141  Valgrind hangs when SIGKILLed
 409367  exit_group() after signal to thread waiting in futex() causes hangs
+410599  Non-deterministic behaviour of pth_self_kill_15_other test
+411134  Allow the user to change a set of command line options during execution
 
 n-i-bz  Fix minor one time leaks in dhat.
 n-i-bz  Add --run-cxx-freeres=no in outer args to avoid inner crashes.
